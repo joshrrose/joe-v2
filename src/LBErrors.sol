@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.10;
 
-import "./interfaces/ILBPair.sol";
+import "openzeppelin/token/ERC20/IERC20.sol";
 
 /** LBRouter errors */
 

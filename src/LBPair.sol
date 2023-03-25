@@ -18,7 +18,7 @@ import "./libraries/SafeMath.sol";
 import "./libraries/SwapHelper.sol";
 import "./libraries/TokenHelper.sol";
 import "./libraries/TreeMath.sol";
-import "./interfaces/ILBPair.sol";
+import "./interfaces/ILBPairFactory.sol";
 
 /// @title Liquidity Book Pair
 /// @author Trader Joe
@@ -144,16 +144,7 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
     /// @return reserveX The reserve of asset X
     /// @return reserveY The reserve of asset Y
     /// @return activeId The active id of the pair
-    function getReservesAndId()
-        external
-        view
-        override
-        returns (
-            uint256 reserveX,
-            uint256 reserveY,
-            uint256 activeId
-        )
-    {
+    function getReservesAndId() external view override returns (uint256 reserveX, uint256 reserveY, uint256 activeId) {
         return _getReservesAndId();
     }
 
@@ -166,12 +157,7 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
         external
         view
         override
-        returns (
-            uint128 feesXTotal,
-            uint128 feesYTotal,
-            uint128 feesXProtocol,
-            uint128 feesYProtocol
-        )
+        returns (uint128 feesXTotal, uint128 feesYTotal, uint128 feesXProtocol, uint128 feesYProtocol)
     {
         return _getGlobalFees();
     }
@@ -209,15 +195,13 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
     /// @return cumulativeId The weighted average cumulative id
     /// @return cumulativeVolatilityAccumulated The weighted average cumulative volatility accumulated
     /// @return cumulativeBinCrossed The weighted average cumulative bin crossed
-    function getOracleSampleFrom(uint256 _timeDelta)
+    function getOracleSampleFrom(
+        uint256 _timeDelta
+    )
         external
         view
         override
-        returns (
-            uint256 cumulativeId,
-            uint256 cumulativeVolatilityAccumulated,
-            uint256 cumulativeBinCrossed
-        )
+        returns (uint256 cumulativeId, uint256 cumulativeVolatilityAccumulated, uint256 cumulativeBinCrossed)
     {
         uint256 _lookUpTimestamp = block.timestamp - _timeDelta;
 
@@ -272,12 +256,10 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
     /// @param _ids The list of ids
     /// @return amountX The amount of tokenX pending
     /// @return amountY The amount of tokenY pending
-    function pendingFees(address _account, uint256[] calldata _ids)
-        external
-        view
-        override
-        returns (uint256 amountX, uint256 amountY)
-    {
+    function pendingFees(
+        address _account,
+        uint256[] calldata _ids
+    ) external view override returns (uint256 amountX, uint256 amountY) {
         if (_account == address(this) || _account == address(0)) return (0, 0);
 
         bytes32 _unclaimedData = _unclaimedFees[_account];
@@ -332,12 +314,10 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
     /// @param _to The address to send the tokens to
     /// @return amountXOut The amount of token X sent to `_to`
     /// @return amountYOut The amount of token Y sent to `_to`
-    function swap(bool _swapForY, address _to)
-        external
-        override
-        nonReentrant
-        returns (uint256 amountXOut, uint256 amountYOut)
-    {
+    function swap(
+        bool _swapForY,
+        address _to
+    ) external override nonReentrant returns (uint256 amountXOut, uint256 amountYOut) {
         PairInformation memory _pair = _pairInformation;
 
         uint256 _amountIn = _swapForY
@@ -503,16 +483,7 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
         uint256[] calldata _distributionX,
         uint256[] calldata _distributionY,
         address _to
-    )
-        external
-        override
-        nonReentrant
-        returns (
-            uint256,
-            uint256,
-            uint256[] memory liquidityMinted
-        )
-    {
+    ) external override nonReentrant returns (uint256, uint256, uint256[] memory liquidityMinted) {
         if (_ids.length == 0 || _ids.length != _distributionX.length || _ids.length != _distributionY.length)
             revert LBPair__WrongLengths();
 
@@ -753,12 +724,10 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
     /// @param _ids The ids of the bins for which to collect the fees
     /// @return amountX The amount of token X collected and sent to `_account`
     /// @return amountY The amount of token Y collected and sent to `_account`
-    function collectFees(address _account, uint256[] calldata _ids)
-        external
-        override
-        nonReentrant
-        returns (uint256 amountX, uint256 amountY)
-    {
+    function collectFees(
+        address _account,
+        uint256[] calldata _ids
+    ) external override nonReentrant returns (uint256 amountX, uint256 amountY) {
         if (_account == address(0) || _account == address(this)) revert LBPair__AddressZeroOrThis();
 
         bytes32 _unclaimedData = _unclaimedFees[_account];
@@ -859,12 +828,7 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
     /// @param _to The address of the receiver of the tokens
     /// @param _id The id of the bin
     /// @param _amount The amount of LB tokens transferred
-    function _beforeTokenTransfer(
-        address _from,
-        address _to,
-        uint256 _id,
-        uint256 _amount
-    ) internal override(LBToken) {
+    function _beforeTokenTransfer(address _from, address _to, uint256 _id, uint256 _amount) internal override(LBToken) {
         super._beforeTokenTransfer(_from, _to, _id, _amount);
 
         if (_from != _to) {
@@ -909,12 +873,7 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
     /// @param _account The address of the user
     /// @param _id The id where the user has collected fees
     /// @param _balance The new balance of the user
-    function _updateUserDebts(
-        Bin memory _bin,
-        address _account,
-        uint256 _id,
-        uint256 _balance
-    ) private {
+    function _updateUserDebts(Bin memory _bin, address _account, uint256 _id, uint256 _balance) private {
         uint256 _debtX = _bin.accTokenXPerShare.mulShiftRoundDown(_balance, Constants.SCALE_OFFSET);
         uint256 _debtY = _bin.accTokenYPerShare.mulShiftRoundDown(_balance, Constants.SCALE_OFFSET);
 
@@ -1020,15 +979,7 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
     /// @return reserveX The reserve of token X
     /// @return reserveY The reserve of token Y
     /// @return activeId The active id of the pair
-    function _getReservesAndId()
-        private
-        view
-        returns (
-            uint256 reserveX,
-            uint256 reserveY,
-            uint256 activeId
-        )
-    {
+    function _getReservesAndId() private view returns (uint256 reserveX, uint256 reserveY, uint256 activeId) {
         uint256 _mask24 = type(uint24).max;
         uint256 _mask136 = type(uint136).max;
         assembly {
@@ -1070,12 +1021,7 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
     function _getGlobalFees()
         private
         view
-        returns (
-            uint128 feesXTotal,
-            uint128 feesYTotal,
-            uint128 feesXProtocol,
-            uint128 feesYProtocol
-        )
+        returns (uint128 feesXTotal, uint128 feesYTotal, uint128 feesXProtocol, uint128 feesYProtocol)
     {
         bytes32 _slotX;
         bytes32 _slotY;
@@ -1106,11 +1052,7 @@ contract LBPair is LBToken, ReentrancyGuardUpgradeable, ILBPair {
     /// @param _pairFees The storage slot of the fees
     /// @param _totalFees The new total fees
     /// @param _protocolFees The new protocol fees
-    function _setFees(
-        FeeHelper.FeesDistribution storage _pairFees,
-        uint128 _totalFees,
-        uint128 _protocolFees
-    ) private {
+    function _setFees(FeeHelper.FeesDistribution storage _pairFees, uint128 _totalFees, uint128 _protocolFees) private {
         assembly {
             sstore(_pairFees.slot, or(shl(_OFFSET_PROTOCOL_FEE, _protocolFees), _totalFees))
         }

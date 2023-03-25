@@ -3,7 +3,7 @@
 pragma solidity 0.8.10;
 
 import "./IJoeFactory.sol";
-import "./ILBPair.sol";
+import "./ILBPairFactory.sol";
 import "./ILBToken.sol";
 import "./IWAVAX.sol";
 
@@ -72,14 +72,13 @@ interface ILBRouter {
         uint16 binStep
     ) external returns (ILBPair pair);
 
-    function addLiquidity(LiquidityParameters calldata liquidityParameters)
-        external
-        returns (uint256[] memory depositIds, uint256[] memory liquidityMinted);
+    function addLiquidity(
+        LiquidityParameters calldata liquidityParameters
+    ) external returns (uint256[] memory depositIds, uint256[] memory liquidityMinted);
 
-    function addLiquidityAVAX(LiquidityParameters calldata liquidityParameters)
-        external
-        payable
-        returns (uint256[] memory depositIds, uint256[] memory liquidityMinted);
+    function addLiquidityAVAX(
+        LiquidityParameters calldata liquidityParameters
+    ) external payable returns (uint256[] memory depositIds, uint256[] memory liquidityMinted);
 
     function removeLiquidity(
         IERC20 tokenX,
@@ -182,11 +181,7 @@ interface ILBRouter {
         uint256 deadline
     ) external payable returns (uint256 amountOut);
 
-    function sweep(
-        IERC20 token,
-        address to,
-        uint256 amount
-    ) external;
+    function sweep(IERC20 token, address to, uint256 amount) external;
 
     function sweepLBToken(
         ILBToken _lbToken,

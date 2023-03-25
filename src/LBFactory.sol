@@ -11,7 +11,7 @@ import "./libraries/Constants.sol";
 import "./libraries/Decoder.sol";
 import "./libraries/PendingOwnable.sol";
 import "./libraries/SafeCast.sol";
-import "./interfaces/ILBFactory.sol";
+import "./interfaces/ILBPairFactory.sol";
 
 /// @title Liquidity Book Factory
 /// @author Trader Joe
@@ -120,7 +120,9 @@ contract LBFactory is PendingOwnable, ILBFactory {
     /// @return protocolShare The protocol share of the preset
     /// @return maxVolatilityAccumulated The max volatility accumulated of the preset
     /// @return sampleLifetime The sample lifetime of the preset
-    function getPreset(uint16 _binStep)
+    function getPreset(
+        uint16 _binStep
+    )
         external
         view
         override
@@ -179,12 +181,10 @@ contract LBFactory is PendingOwnable, ILBFactory {
     /// @param _tokenX The first token of the pair
     /// @param _tokenY The second token of the pair
     /// @return LBPairsAvailable The list of available LBPairs
-    function getAllLBPairs(IERC20 _tokenX, IERC20 _tokenY)
-        external
-        view
-        override
-        returns (LBPairInformation[] memory LBPairsAvailable)
-    {
+    function getAllLBPairs(
+        IERC20 _tokenX,
+        IERC20 _tokenY
+    ) external view override returns (LBPairInformation[] memory LBPairsAvailable) {
         unchecked {
             (IERC20 _tokenA, IERC20 _tokenB) = _sortTokens(_tokenX, _tokenY);
 
